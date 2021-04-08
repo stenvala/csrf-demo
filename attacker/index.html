@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="/" />
+    <title>CSRF-demo: Attacker's site</title>
+    <meta charset="utf-8" />
+    <script>
+      var vulnerableTarget = "https://csrf-demo-vulnerable.pyora-pojat.fi";
+      var protectedTarget = "https://csrf-demo-protected.trialpyoraily.fi";
+      var route = "/rest.php";
+
+      var target = protectedTarget;
+
+      function send(method, cors) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {};
+        var url = target + route;
+        if (cors) {
+          url += "?cors=1";
+        }
+        xhr.open(method, url);
+        // xhr.setRequestHeader("csrf-token", "safe-token");
+        xhr.send();
+      }
+
+      function toggleTarget() {
+        target = target == protectedTarget ? vulnerableTarget : protectedTarget;
+        document.getElementById("img").setAttribute("src", target + route);
+        document.getElementById("a").setAttribute("href", target + route);
+        document.getElementById("target").innerHTML = target;
+      }
+    </script>
+  </head>
+  <body>
+    <p>
+      Goto <a id="protected" target="protected">Protected site</a> |
+      <a id="vulnerable" target="vulnerable">Vulnerable site</a>
+    </p>
+    <hr />
+    <p>
+      Current target <b><span id="target"></span></b><br /><br />
+      <button onclick="toggleTarget()">Change target</button>
+    </p>
+    <p>
+      <img id="img" style="display: none" />
+      There is hidden image here. You can't see what's there, but see dev tools
+      what is done.
+    </p>
+    <p>
+      <a id="a" target="attack">Please click, I'm safe</a>
+    </p>
+    <p>
+      Try also XHR get. Note, that the absence of CORS headers blocks that.
+      <br /><br />
+      <button onclick="send('GET')">Send get</button>
+      <br /><br />
+      <button onclick="send('GET', true)">
+        Send get to end point that has CORS headers enabled
+      </button>
+    </p>
+
+    <script>
+      toggleTarget();
+      document
+        .getElementById("protected")
+        .setAttribute("href", protectedTarget);
+      document
+        .getElementById("vulnerable")
+        .setAttribute("href", vulnerableTarget);
+    </script>
+  </body>
+</html>
